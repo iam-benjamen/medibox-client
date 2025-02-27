@@ -34,7 +34,10 @@ import {
   Legend,
 } from "recharts";
 import { useState } from "react";
+import { Spinner } from "@chakra-ui/react";
+import { useEffect } from "react";
 import MobileNavBar from "@/components/Dashboard/MobileNav";
+import axios from "axios";
 
 const data = [
   { time: "9:00", heartRate: 75, bloodOxygen: 98 },
@@ -45,25 +48,57 @@ const data = [
   { time: "14:00", heartRate: 74, bloodOxygen: 97 },
 ];
 
-// Sample medication adherence data
-const adherenceData = [
-  { name: "Taken", value: 85 },
-  { name: "Missed", value: 15 },
-];
+const COLORS = ["#48BB78", "#F56565"];
 
-// Sample time-based adherence data
-const timeAdherenceData = [
-  { time: "Morning", taken: 90, missed: 10 },
-  { time: "Afternoon", taken: 85, missed: 15 },
-  { time: "Evening", taken: 80, missed: 20 },
-  { time: "Night", taken: 95, missed: 5 },
-];
+interface AdherenceData {
+  name: string;
+  value: number;
+}
 
-const COLORS = ["#48BB78", "#F56565"]; // Green for taken, Red for missed
+interface HealthMetricsData {
+  time: string;
+  health_rate: number;
+  blood_oxygen: number;
+}
 
 const User = () => {
   const router = useRouter();
   const [isOpen, setOpen] = useState(false);
+  const [adherenceData, setAdherenceData] = useState<AdherenceData[]>([]);
+  const [healthMetricsData, setHealthMetricsData] = useState<HealthMetricsData[]>(
+    []
+  );
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAdherenceData = async () => {
+      try {
+        const response = await axios.get(
+          "https://medibox-server.onrender.com/api/logs/adherence"
+        );
+        setAdherenceData(response.data);
+      } catch (error) {
+        console.error("Error fetching adherence data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchMetricsData = async () => {
+      try {
+        const response = await axios.get(
+          "https://medibox-server.onrender.com/api/health"
+        );
+        setHealthMetricsData(response.data);
+      } catch (error) {
+        console.error("Error fetching metrics data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAdherenceData();
+    fetchMetricsData();
+  }, []);
 
   return (
     <>
@@ -282,14 +317,14 @@ const User = () => {
                     Heart Rate (BPM)
                   </Heading>
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data}>
+                    <LineChart data={healthMetricsData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="time" />
                       <YAxis domain={[60, 100]} />
                       <Tooltip />
                       <Line
                         type="monotone"
-                        dataKey="heartRate"
+                        dataKey="health_rate"
                         stroke="#E53E3E"
                         strokeWidth={2}
                         dot={{ fill: "#E53E3E" }}
@@ -310,14 +345,14 @@ const User = () => {
                     Blood Oxygen (%)
                   </Heading>
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data}>
+                    <LineChart data={healthMetricsData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="time" />
                       <YAxis domain={[90, 100]} />
                       <Tooltip />
                       <Line
                         type="monotone"
-                        dataKey="bloodOxygen"
+                        dataKey="blood_oxygen"
                         stroke="#3182CE"
                         strokeWidth={2}
                         dot={{ fill: "#3182CE" }}
@@ -350,51 +385,64 @@ const User = () => {
               borderBottomRadius={"1rem"}
               mb="2rem"
             >
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8} my="2rem">
+              <SimpleGrid columns={{ base: 1, md: 1 }} spacing={8} my="2rem">
                 {/* Medication Adherence Pie Chart */}
                 <Box p={4} borderRadius="lg" borderWidth="1px" h="500px">
-                  <Heading size="sm" mb={4}>
+                  <Heading size="md" mb={4}>
                     Medication Adherence
                   </Heading>
                   <Grid templateColumns="repeat(2, 1fr)" gap={4} w="full">
                     <Stat textAlign="center">
                       <StatLabel>Adherence Rate</StatLabel>
-                      <StatNumber color="green.500">{85}%</StatNumber>
-                      <Text fontSize="sm" color="gray.500">
-                        ({85} doses)
-                      </Text>
+                      <StatNumber color="green.500">
+                        {" "}
+                        {adherenceData
+                          .find((item) => item.name === "Taken")
+                          ?.value.toFixed(1)}
+                        %
+                      </StatNumber>
                     </Stat>
                     <Stat textAlign="center">
                       <StatLabel>Missed Doses</StatLabel>
-                      <StatNumber color="red.500">{15}%</StatNumber>
-                      <Text fontSize="sm" color="gray.500">
-                        ({15} doses)
-                      </Text>
+                      <StatNumber color="red">
+                        {adherenceData
+                          .find((item) => item.name === "Missed")
+                          ?.value.toFixed(1)}
+                        %
+                      </StatNumber>
                     </Stat>
                   </Grid>
                   <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={adherenceData}
-                        cx="50%"
-                        cy="40%"
-                        innerRadius={80}
-                        outerRadius={100}
-                        paddingAngle={5}
-                        dataKey="value"
-                        label={({ name, value }) => `${name}: ${value}%`}
-                      >
-                        {adherenceData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
+                    {loading ? (
+                      <Box w="5rem" h="5rem">
+                        <Spinner size={"sm"} />
+                      </Box>
+                    ) : (
+                      <PieChart>
+                        <Pie
+                          data={adherenceData}
+                          cx="50%"
+                          cy="40%"
+                          innerRadius={80}
+                          outerRadius={100}
+                          paddingAngle={5}
+                          dataKey="value"
+                          label={({ name, value }) =>
+                            `${name}: ${value.toFixed(1)}%`
+                          }
+                        >
+                          {adherenceData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    )}
                   </ResponsiveContainer>
                 </Box>
 
                 {/* Time-based Adherence Bar Chart */}
-                <Box
+                {/* <Box
                   p={4}
                   pb="2rem"
                   borderRadius="lg"
@@ -415,7 +463,7 @@ const User = () => {
                       <Bar dataKey="missed" name="Missed" fill="#F56565" />
                     </BarChart>
                   </ResponsiveContainer>
-                </Box>
+                </Box> */}
               </SimpleGrid>
             </Box>
           </Box>
