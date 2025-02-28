@@ -142,7 +142,7 @@ const User = () => {
                 alignItems={"flex-end"}
               >
                 <Text color={"#303972"} fontSize={"1.35rem"} fontWeight={500}>
-                  DEMO PATIENT
+                  AREO
                 </Text>
                 <Text color={"#303972"}>Patient 001</Text>
               </Box>
@@ -212,7 +212,7 @@ const User = () => {
                     fontWeight={700}
                     display={{ base: "none", lg: "block" }}
                   >
-                    PATIENT
+                    AREO BENJAMEN
                   </Text>
                   <Text
                     fontSize={"1.125rem"}

@@ -86,7 +86,7 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
           <HStack justify="space-between">
             <Heading size="md">Personal Information</Heading>
             <Button
-              colorScheme={isEditing ? "green" : "blue"}
+              colorScheme={isEditing ? "green" : "purple"}
               onClick={isEditing ? handleSave : () => setIsEditing(true)}
               isLoading={isLoading}
             >

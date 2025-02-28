@@ -27,19 +27,19 @@ import { useState } from "react";
 
 const samplePatientData: PatientData = {
   id: "1",
-  name: "John Doe",
-  age: 45,
-  phone: "+1234567890",
-  email: "john.doe@email.com",
+  name: "Areo Benjamen",
+  age: 78,
+  phone: "+234567890789",
+  email: "areo.ben@email.com",
   photoUrl: "",
   bloodType: "O+",
   allergies: "Penicillin, Peanuts",
   currentMedications: "Lisinopril 10mg\nMetformin 500mg",
   medicalConditions: "Hypertension\nType 2 Diabetes",
   emergencyContact: {
-    name: "Jane Doe",
+    name: "Areo Jane",
     relationship: "Spouse",
-    phone: "+1987654321",
+    phone: "+23487654321",
   },
 };
 

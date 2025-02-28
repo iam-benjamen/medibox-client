@@ -176,7 +176,7 @@ const Logs = () => {
                       <Th>Time</Th>
                       <Th>Status</Th>
                       <Th>Description</Th>
-                      <Th>Action</Th>
+                      {/* <Th>Action</Th> */}
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -191,7 +191,7 @@ const Logs = () => {
                           </Badge>
                         </Td>
                         <Td>{log.description}</Td>
-                        <Td>
+                        {/* <Td>
                           {!log.status && (
                             <Button
                               size="sm"
@@ -202,7 +202,7 @@ const Logs = () => {
                               Requery
                             </Button>
                           )}
-                        </Td>
+                        </Td> */}
                       </Tr>
                     ))}
                   </Tbody>
